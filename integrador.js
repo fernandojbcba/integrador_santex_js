@@ -10,7 +10,7 @@ El código tiene errores y varias cosas para mejorar / agregar
 Ejercicios
 1) Arreglar errores existentes en el código
    ok a) Al ejecutar agregarProducto 2 veces con los mismos valores debería agregar 1 solo producto con la suma de las cantidades.    
-    b) Al ejecutar agregarProducto debería actualizar la lista de categorías solamente si la categoría no estaba en la lista.
+    ok b) Al ejecutar agregarProducto debería actualizar la lista de categorías solamente si la categoría no estaba en la lista.
    ok c) Si intento agregar un producto que no existe debería mostrar un mensaje de error.
 ​
 2) Agregar la función eliminarProducto a la clase Carrito
@@ -125,13 +125,69 @@ class Carrito {
         );
         this.productos.push(nuevoProducto);
         this.precioTotal = this.precioTotal + producto.precio * cantidad;
-        this.categorias.push(producto.categoria);
         productosDelSuper[indicesuper].stock -= cantidad;
-        console.log(producto);
+        console.log(producto.categoria);
+        console.log(carrito.categorias);
+        const found = carrito.categorias.find(
+          (element) => (element = producto.categoria)
+        );
+
+        console.log(found);
+
+        if (found != producto.categoria) {
+          this.categorias.push(producto.categoria);
+        }
       }
     } else {
       console.log("no hay mas en stock");
     }
+  }
+  eliminarProducto(sku, cantidad) {
+    return new Promise((resolve, reject) => {
+      try {
+        setTimeout(() => {
+          const indiceProducto = this.productos.findIndex(
+            (producto) => producto.sku === sku
+          );
+
+          if (indiceProducto === -1) {
+            // El producto no está en el carrito
+            reject(Error("El producto no está en el carrito"));
+          } else {
+            const precioDelProducto = (sku) => {
+              const producto = productosDelSuper.find(
+                (product) => product.sku === sku
+              );
+              return producto.precio;
+            };
+            let precioProdAEliminar = precioDelProducto(sku);
+            const productoEnCarrito = this.productos[indiceProducto];
+            console.log(productoEnCarrito.cantidad);
+            if (cantidad < productoEnCarrito.cantidad) {
+              // La cantidad es menor a la cantidad del producto en el carrito
+              productoEnCarrito.cantidad -= cantidad;
+              this.precioTotal -= precioProdAEliminar * cantidad;
+            } else {
+              // La cantidad es mayor o igual a la cantidad del producto en el carrito
+              this.productos.splice(indiceProducto, 1);
+              this.precioTotal -=
+                precioProdAEliminar * productoEnCarrito.cantidad;
+
+              // Verificar si la categoría del producto ya no está en el carrito y eliminarla de la lista de categorías
+              const categoriaProducto = productoEnCarrito.categoria;
+              const categoriaIndex = this.categorias.indexOf(categoriaProducto);
+              if (categoriaIndex !== -1) {
+                this.categorias.splice(categoriaIndex, 1);
+              }
+            }
+
+            resolve();
+          }
+        }, 3000);
+      } catch (error) {
+        console.log(Error);
+      }
+    });
   }
 }
 
@@ -181,6 +237,21 @@ function findProductBySkuencarrito(sku) {
     }, 1500);
   });
 }
+const eliminar = (sku, cantidad) => {
+  carrito
+    .eliminarProducto(sku, cantidad)
+    .then(() => {
+      console.log("Producto eliminado correctamente del carrito");
+    })
+    .catch((error) => {
+      console.error("Error al eliminar el producto del carrito:", error);
+    });
+};
 const carrito = new Carrito();
 
 carrito.agregarProducto("WE328NJ", 1);
+carrito.agregarProducto("WE328NJ", 1);
+carrito.agregarProducto("FN312PPE", 1);
+carrito.agregarProducto("OL883YE", 1);
+
+eliminar("WE328NJ", 1);
