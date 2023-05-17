@@ -126,13 +126,10 @@ class Carrito {
         this.productos.push(nuevoProducto);
         this.precioTotal = this.precioTotal + producto.precio * cantidad;
         productosDelSuper[indicesuper].stock -= cantidad;
-        console.log(producto.categoria);
-        console.log(carrito.categorias);
+
         const found = carrito.categorias.find(
           (element) => (element = producto.categoria)
         );
-
-        console.log(found);
 
         if (found != producto.categoria) {
           this.categorias.push(producto.categoria);
@@ -162,7 +159,7 @@ class Carrito {
             };
             let precioProdAEliminar = precioDelProducto(sku);
             const productoEnCarrito = this.productos[indiceProducto];
-            console.log(productoEnCarrito.cantidad);
+
             if (cantidad < productoEnCarrito.cantidad) {
               // La cantidad es menor a la cantidad del producto en el carrito
               productoEnCarrito.cantidad -= cantidad;
@@ -181,7 +178,7 @@ class Carrito {
               }
             }
 
-            resolve();
+            resolve(productoEnCarrito);
           }
         }, 3000);
       } catch (error) {
@@ -249,9 +246,25 @@ const eliminar = (sku, cantidad) => {
 };
 const carrito = new Carrito();
 
-carrito.agregarProducto("WE328NJ", 1);
-carrito.agregarProducto("WE328NJ", 1);
-carrito.agregarProducto("FN312PPE", 1);
-carrito.agregarProducto("OL883YE", 1);
-
-eliminar("WE328NJ", 1);
+const testear = async () => {
+  await carrito.agregarProducto("WE328NJ", 1);
+  console.log(carrito);
+  await carrito.agregarProducto("WE328NJ", 1);
+  console.log(carrito);
+  await carrito.agregarProducto("FN312PPE", 1);
+  console.log(carrito);
+  await carrito.agregarProducto("OL883YE", 1);
+  console.log(carrito);
+  await carrito
+    .eliminarProducto("WE328NJ", 1)
+    .then((producto) => {
+      console.log(
+        `Producto ${producto.nombre} eliminado correctamente del carrito`
+      );
+    })
+    .catch((error) => {
+      console.error("Error al eliminar el producto del carrito:", error);
+    });
+    console.log(carrito);
+};
+testear();
